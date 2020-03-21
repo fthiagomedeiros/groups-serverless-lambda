@@ -1,4 +1,4 @@
-import { APIGatewayProxyHandler } from 'aws-lambda';
+import { APIGatewayProxyHandler, APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 import 'source-map-support/register';
 import * as AWS from 'aws-sdk'
 
@@ -6,7 +6,7 @@ const docClient = new AWS.DynamoDB.DocumentClient();
 
 const groupsTable = process.env.TABLE;
 
-export const handler: APIGatewayProxyHandler = async (event, _context) => {
+export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEvent, _context): Promise<APIGatewayProxyResult> => {
   console.log('Processing event: ', event);
 
   let nextKey; // Next key to continue scan operation if necessary

@@ -49,7 +49,7 @@ functions:
     events:
       - http:
           method: post
-          path: groupsp
+          path: groups
           cors: true
 
 

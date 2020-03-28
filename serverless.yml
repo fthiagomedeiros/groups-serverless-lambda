@@ -26,6 +26,7 @@ provider:
   environment:
     AWS_NODEJS_CONNECTION_REUSE_ENABLED: 1
     TABLE: Groups-${self:provider.stage}
+    IMAGES_TABLE: Groups-Images-${self:provider.stage}
 
   iamRoleStatements:
     - Effect: Allow

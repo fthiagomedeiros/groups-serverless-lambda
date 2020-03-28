@@ -8,21 +8,21 @@ const docClient = new AWS.DynamoDB.DocumentClient();
 const table = process.env.TABLE;
 
 export const handler: APIGatewayProxyHandler = async (event, _context) => {
-    console.log('Creating a group')
-    const itemId = uuid.v4()
+    console.log('Creating a group');
+    const itemId = uuid.v4();
 
-    const parsedBody = JSON.parse(event.body)
+    const parsedBody = JSON.parse(event.body);
 
     const newItem = {
         id: itemId,
         name: parsedBody.name,
         description: parsedBody.description
-    }
+    };
 
     await docClient.put({
         TableName: table,
         Item: newItem
-    }).promise()
+    }).promise();
 
 
     // TODO implement
@@ -36,4 +36,4 @@ export const handler: APIGatewayProxyHandler = async (event, _context) => {
         })
     };
 
-}
+};

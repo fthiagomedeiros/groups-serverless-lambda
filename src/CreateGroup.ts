@@ -1,4 +1,4 @@
-import { APIGatewayProxyHandler } from 'aws-lambda';
+import {APIGatewayProxyHandler} from 'aws-lambda';
 import 'source-map-support/register';
 import * as AWS from 'aws-sdk'
 import * as uuid from 'uuid'
@@ -26,7 +26,7 @@ export const handler: APIGatewayProxyHandler = async (event, _context) => {
 
 
     // TODO implement
-    const response = {
+    return {
         statusCode: 201,
         headers: {
             'Access-Control-Allow-Origin': '*'
@@ -35,6 +35,5 @@ export const handler: APIGatewayProxyHandler = async (event, _context) => {
             newItem
         })
     };
-    return response;
 
 }

@@ -1,5 +1,5 @@
 service:
-  name: get-groups
+  name: Groups
 # app and org for use with dashboard.serverless.com
 #app: your-app-name
 #org: your-org-name
@@ -26,13 +26,13 @@ provider:
   environment:
     AWS_NODEJS_CONNECTION_REUSE_ENABLED: 1
     TABLE: Groups-${self:provider.stage}
-  
-  iamRoleToDynamoDb:
+
+  iamRoleStatements:
     - Effect: Allow
       Action:
         - dynamodb:Scan
         - dynamodb:PutItem
-      Resource: "arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TABLE}"
+      Resource: !GetAtt GroupsDynamoDbTable.Arn
 
 
 functions:

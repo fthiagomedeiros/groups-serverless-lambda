@@ -40,6 +40,7 @@ provider:
     - Effect: Allow
       Action:
         - dynamodb:Query
+        - dynamodb:PutItem
       Resource: !GetAtt ImagesDynamoDbTable.Arn
     - Effect: Allow
       Action:
@@ -58,6 +59,9 @@ provider:
         - name: GroupRequest
           contentType: application/json
           schema: ${file(models/create-group-request.json)}
+        - name: ImageRequest
+          contentType: application/json
+          schema: ${file(models/create-image-request.json)}
 
 functions:
   GetGroups:
@@ -100,6 +104,23 @@ functions:
           method: get
           path: images/{imageId}
           cors: true
+
+  CreateImage:
+    handler: src/CreateImage.handler
+    events:
+      - http:
+          method: post
+          path: groups/{groupId}/images
+          cors: true
+          request:
+            schema:
+              application/json: ${file(models/create-image-request.json)}
+          reqValidatorName: RequestBodyValidator
+          documentation:
+            summary: Create a new image
+            description: Create a new image
+            requestModels:
+              'application/json': ImageRequest
 
 
 resources:

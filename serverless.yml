@@ -12,7 +12,8 @@ custom:
 # Add the serverless-webpack plugin
 plugins:
   - serverless-webpack
-
+  - serverless-aws-documentation
+  - serverless-reqvalidator-plugin
 
 provider:
   name: aws
@@ -25,16 +26,42 @@ provider:
 
   environment:
     AWS_NODEJS_CONNECTION_REUSE_ENABLED: 1
-    TABLE: Groups-${self:provider.stage}
-    IMAGES_TABLE: Groups-Images-${self:provider.stage}
+    GROUPS_TABLE: Groups-${self:provider.stage}
+    IMAGES_TABLE: Images-${self:provider.stage}
+    IMAGE_ID_INDEX: ImageIdIndex
 
   iamRoleStatements:
     - Effect: Allow
       Action:
         - dynamodb:Scan
         - dynamodb:PutItem
+        - dynamodb:GetItem
       Resource: !GetAtt GroupsDynamoDbTable.Arn
+    - Effect: Allow
+      Action:
+        - dynamodb:Query
+        - dynamodb:PutItem
+      Resource: !GetAtt ImagesDynamoDbTable.Arn
+    - Effect: Allow
+      Action:
+        - dynamodb:Query
+      Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.IMAGES_TABLE}/index/${self:provider.environment.IMAGE_ID_INDEX}
 
+
+  custom:
+    documentation:
+      api:
+        info:
+          version: v1.0.0
+          title: Udagram API
+          description: Serverless App for Images Sharing
+      models:
+        - name: GroupRequest
+          contentType: application/json
+          schema: ${file(models/create-group-request.json)}
+        - name: ImageRequest
+          contentType: application/json
+          schema: ${file(models/create-image-request.json)}
 
 functions:
   GetGroups:
@@ -52,10 +79,62 @@ functions:
           method: post
           path: groups
           cors: true
+          request:
+            schema:
+              application/json: ${file(models/create-group-request.json)}
+          reqValidatorName: RequestBodyValidator
+          documentation:
+            summary: Create a new group
+            description: Create a new group
+            requestModels:
+              'application/json': GroupRequest
+
+  GetImagesByGroupId:
+    handler: src/GetImages.handler
+    events:
+      - http:
+          method: get
+          path: groups/{groupId}/images
+          cors: true
+
+  GetImageById:
+    handler: src/GetImage.handler
+    events:
+      - http:
+          method: get
+          path: images/{imageId}
+          cors: true
+
+  CreateImage:
+    handler: src/CreateImage.handler
+    events:
+      - http:
+          method: post
+          path: groups/{groupId}/images
+          cors: true
+          request:
+            schema:
+              application/json: ${file(models/create-image-request.json)}
+          reqValidatorName: RequestBodyValidator
+          documentation:
+            summary: Create a new image
+            description: Create a new image
+            requestModels:
+              'application/json': ImageRequest
 
 
 resources:
   Resources:
+
+    RequestBodyValidator:
+      Type: AWS::ApiGateway::RequestValidator
+      Properties:
+        Name: 'request-body-validator'
+        RestApiId:
+          Ref: ApiGatewayRestApi
+        ValidateRequestBody: true
+        ValidateRequestParameters: false
+
     GroupsDynamoDbTable:
       Type: AWS::DynamoDB::Table
       Properties:
@@ -66,7 +145,7 @@ resources:
           - AttributeName: id
             KeyType: HASH
         BillingMode: PAY_PER_REQUEST
-        TableName: ${self:provider.environment.TABLE}
+        TableName: ${self:provider.environment.GROUPS_TABLE}
 
     ImagesDynamoDbTable:
       Type: AWS::DynamoDB::Table
@@ -76,10 +155,19 @@ resources:
             AttributeType: S
           - AttributeName: timestamp
             AttributeType: S
+          - AttributeName: imageId
+            AttributeType: S
         KeySchema:
           - AttributeName: groupId
             KeyType: HASH
           - AttributeName: timestamp
             KeyType: RANGE
+        GlobalSecondaryIndexes:
+          - IndexName: ${self:provider.environment.IMAGE_ID_INDEX}
+            KeySchema:
+              - AttributeName: imageId
+                KeyType: HASH
+            Projection:
+              ProjectionType: ALL
         BillingMode: PAY_PER_REQUEST
         TableName: ${self:provider.environment.IMAGES_TABLE}

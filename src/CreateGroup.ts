@@ -5,7 +5,7 @@ import * as uuid from 'uuid'
 
 const docClient = new AWS.DynamoDB.DocumentClient();
 
-const table = process.env.TABLE;
+const table = process.env.GROUPS_TABLE;
 
 export const handler: APIGatewayProxyHandler = async (event, _context) => {
     console.log('Creating a group');

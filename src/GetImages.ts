@@ -34,7 +34,9 @@ export const handler: APIGatewayProxyHandler =
         headers: {
           'Access-Control-Allow-Origin': '*'
         },
-        body: JSON.stringify(images)
+        body: JSON.stringify({
+            "items": images
+        })
       };
 
 

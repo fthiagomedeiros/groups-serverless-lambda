@@ -24,3 +24,17 @@ sls deploy -v
 ```
 
 The AWS infrastructure will be created by CloudFormation service
+
+**4. Running the client**
+
+React client is provided to interact with the serverless. After the serverless deployed, access the folder [client](https://github.com/fthiagomedeiros/groups-serverless-lambda/tree/master/client) in project root to set up client.
+
+```shell
+npm install
+```
+
+After all dependencies downloaded, set the `ApiGatewayId` in the folder [config.ts](https://github.com/fthiagomedeiros/groups-serverless-lambda/blob/master/client/src/config.ts) and run the command below.
+
+```shell
+npm start
+```

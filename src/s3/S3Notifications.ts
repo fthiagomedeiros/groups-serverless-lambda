@@ -4,7 +4,8 @@ import 'source-map-support/register'
 
 // @ts-ignore
 export const handler: S3Handler = async (event: S3Event) => {
-    console.log('Sending S3 event', event);
+    console.log('Processing S3 Item with Key: ', event.Records[0].s3.object.key);
+
     return {
         statusCode: 200,
         headers: {

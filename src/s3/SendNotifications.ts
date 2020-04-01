@@ -73,7 +73,5 @@ const handler: S3Handler = async (event: S3Event) => {
 
         }
 
-
-
     }
 };

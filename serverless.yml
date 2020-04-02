@@ -84,6 +84,9 @@ provider:
 
 
 functions:
+  Auth:
+    handler: src/auth/Auth0Authorizer.handler
+
   GetGroups:
     handler: src/GetGroups.handler
     events:
@@ -99,6 +102,7 @@ functions:
           method: post
           path: groups
           cors: true
+          authorizer: Auth
           request:
             schema:
               application/json: ${file(models/create-group-request.json)}
@@ -132,6 +136,7 @@ functions:
           method: post
           path: groups/{groupId}/images
           cors: true
+          authorizer: Auth
           request:
             schema:
               application/json: ${file(models/create-image-request.json)}
@@ -174,6 +179,17 @@ functions:
 
 resources:
   Resources:
+    GatewayResponseDefault4XX:
+      Type: AWS::ApiGateway::GatewayResponse
+      Properties:
+        ResponseParameters:
+          gatewayresponse.header.Access-Control-Allow-Origin: "'*'"
+          gatewayresponse.header.Access-Control-Allow-Headers: "'*'"
+          gatewayresponse.header.Access-Control-Allow-Methods: "'GET,OPTIONS,POST'"
+        ResponseType: DEFAULT_4XX
+        RestApiId:
+          !Ref ApiGatewayRestApi
+
     RequestBodyValidator:
       Type: AWS::ApiGateway::RequestValidator
       Properties:
